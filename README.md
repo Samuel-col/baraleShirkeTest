@@ -1,11 +1,11 @@
 # Barale - Shirke Test
-**R** implementation of two samples location/scale multidimensional test proposed by Barale and Shirke.
+**R** implementation of two samples location/scale multidimensional test proposed by (Barale, 2020).
 
 ## About the code
 
 The test is performed by the function called ```baraleShirkeTest```. This function is defined in ```baraleShirke.cpp```. That files contains several functions that are used in the ```baraleShirkeTest``` function. One of them is ```mahDepth``` which computes the mahalanobis depth of a vector according to a mean vector and a covariances matrix. You can replace this function if you want to use a different depth meassure.
 
-The test is implemented in **C++** in order to aproximate the p-value with a higer precision at a lower cost. Therefore, it is necesary to install a **C++** compiler, ```Rcpp``` and ```RcppArmadillo``` **R** packages, and ```Armadillo``` **C++** library.
+The test is implemented in **C++** in order to aproximate the p-value with a higher precision at a lower cost. Therefore, it is necesary to install a **C++** compiler, ```Rcpp``` and ```RcppArmadillo``` **R** packages, and ```Armadillo``` **C++** library.
 
 ## How to use it
 
@@ -31,11 +31,11 @@ Finally you're ready to start performing the test. You must know that the ```bar
 
 ## Files
 
-Here you can fins a list of the files that are contained on this repository:
+Here you can find a list of the files that are contained on this repository:
 
 * ```baraleShirke.cpp```: Source code un **C++**.
 * ```baraleShirke.r```: Example code in **R**.
-* ```turtles.csv```: Example data (columns are separated by spaces)-
+* ```turtles.csv```: Example data (columns are separated by spaces).
 * ```README.md```: This file.
 
 
