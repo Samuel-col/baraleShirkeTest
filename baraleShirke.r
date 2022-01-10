@@ -1,7 +1,7 @@
 library(Rcpp)
 library(RcppArmadillo)
 
-setwd("/home/samuel/Documentos/U/Análisis/")
+setwd("/path/to/files/")
 sourceCpp("baraleShirke.cpp")
 
 
