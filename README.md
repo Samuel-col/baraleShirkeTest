@@ -5,6 +5,8 @@
 
 The test is performed by the function called ```baraleShirkeTest```. This function is defined in ```baraleShirke.cpp```. That files contains several functions that are used in the ```baraleShirkeTest``` function. One of them is ```mahDepth``` which computes the mahalanobis depth of a vector according to a mean vector and a covariances matrix. You can replace this function if you want to use a different depth meassure.
 
+## Dependencies
+
 The test is implemented in **C++** in order to aproximate the p-value with a higher precision at a lower cost. Therefore, it is necesary to install a **C++** compiler, ```Rcpp``` and ```RcppArmadillo``` **R** packages, and ```Armadillo``` **C++** library.
 
 ## How to use it
