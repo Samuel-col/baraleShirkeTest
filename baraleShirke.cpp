@@ -9,15 +9,15 @@ using namespace arma;
 using namespace std;
 
 // Mahalanobis Distance
-double MahDist(vec Obs,vec xBar,mat Sinv){
+double MahDist2(vec Obs,vec xBar,mat Sinv){
 		vec dif = Obs - xBar;
 		return as_scalar(dif.t() * Sinv * dif);
 }
 
 // Mahalanobis Depth
 double mahDepth(vec Obs,vec xBar, mat Sinv){
-		double mahDist = MahDist(Obs,xBar,Sinv);
-		return 1/(1+mahDist);
+		double mahDist2 = MahDist2(Obs,xBar,Sinv);
+		return 1/(1+mahDist2);
 }
 
 vec MahDepth(mat Obs,vec xBar,mat Sinv){
@@ -103,11 +103,12 @@ List baraleShirkeTest(NumericMatrix rX1, NumericMatrix rX2,int B){
 				uvec perm = randperm(N);
 				mat bX1 = Z.rows(perm.head(n1));
 				mat bX2 = Z.rows(perm.tail(n2));
-				Bsamples(i) = Bstat(bX1,bX2,Z,n1,n2);
+				mat Zb = Z.rows(perm);
+				Bsamples(i) = Bstat(bX1,bX2,Zb,n1,n2);
 		}
 
 		// pValue
-		uvec comp = B0 >= Bsamples;
+		uvec comp = B0 <= Bsamples;
 		double p = ((double)sum(comp))/B;
 		
 		string concl;
