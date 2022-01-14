@@ -85,7 +85,7 @@ List baraleShirkeTest(NumericMatrix rX1, NumericMatrix rX2,int B){
 		mat X2 = as<mat>(rX2);
 		
 		if (X1.n_cols!=X2.n_cols){
-		  cout << "ERROR: Las poblaciones no tienen la misma cantidad de dimensiones." << endl;
+		  cout << "ERROR: Samples dimensions are not equal." << endl;
       return List::create();
 		}
 
