@@ -27,7 +27,7 @@ Finally you're ready to start performing the test. You must know that the ```bar
 
 * ```X1``` which is the **matrix** that contains the observations of the first sample on its rows.
 
-* ```X2``` which is the **matrix** that contains the observations of the sample sample on its rows.
+* ```X2``` which is the **matrix** that contains the observations of the second sample on its rows.
 
 * ```B```, the number of iterations that will be used to approximate the p-value.
 
