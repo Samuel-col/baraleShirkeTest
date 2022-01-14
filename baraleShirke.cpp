@@ -1,5 +1,6 @@
 // [[Rcpp::plugins("cpp11")]]
 #include <iostream>
+#include <time.h>
 #include <math.h>
 #include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
@@ -69,9 +70,12 @@ double Bstat(mat X1,mat X2,mat Z,int n1,int n2){
 
 		// Statistic
 		uvec RF1_ord = sort(RF1.tail(n2));
+		// RF1_ord.print("RF1_ord");
 		uvec RF2_ord = sort(RF2.head(n1));
+		// RF2_ord.print("RF2_ord");
 		double BF1 = BFi(RF1_ord,n1,n2);
 		double BF2 = BFi(RF2_ord,n2,n1);
+		// cout << BF1 << " " << BF2 << endl;
 		
 		return max(BF1,BF2);
 }
@@ -85,7 +89,7 @@ List baraleShirkeTest(NumericMatrix rX1, NumericMatrix rX2,int B){
 		mat X2 = as<mat>(rX2);
 		
 		if (X1.n_cols!=X2.n_cols){
-		  cout << "ERROR: Samples dimensions are not equal." << endl;
+		  cout << "ERROR: Samples dimensions are not the equal." << endl;
       return List::create();
 		}
 
@@ -99,12 +103,18 @@ List baraleShirkeTest(NumericMatrix rX1, NumericMatrix rX2,int B){
 
 		// Bootstrap
 		vec Bsamples(B,fill::none);
+		clock_t t = clock(); // Progress report
 		for(int i=0;i<B;i++){
 				uvec perm = randperm(N);
 				mat bX1 = Z.rows(perm.head(n1));
 				mat bX2 = Z.rows(perm.tail(n2));
 				mat Zb = Z.rows(perm);
 				Bsamples(i) = Bstat(bX1,bX2,Zb,n1,n2);
+				
+				if(clock()-t > 1*CLOCKS_PER_SEC){ // Progress report
+				  t = clock();
+				  cout << setprecision(3) << (float)i/B*100 << "% completed." << endl;
+				}
 		}
 
 		// pValue
