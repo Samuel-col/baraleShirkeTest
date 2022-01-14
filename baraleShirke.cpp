@@ -64,8 +64,8 @@ double Bstat(mat X1,mat X2,mat Z,int n1,int n2){
 		vec d2 = MahDepth(Z,m2,S2.i());
 		
 		// Ranks
-		uvec RF1 = sort_index(sort_index(d1));
-		uvec RF2 = sort_index(sort_index(d2));
+		uvec RF1 = 1 + sort_index(sort_index(d1));
+		uvec RF2 = 1 + sort_index(sort_index(d2));
 
 		// Statistic
 		uvec RF1_ord = sort(RF1.tail(n2));
