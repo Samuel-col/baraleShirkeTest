@@ -1,3 +1,6 @@
+// Samuel Sánchez Gutiérrez
+// samuelhdo010524@gmail.com
+
 // [[Rcpp::plugins("cpp11")]]
 #include <iostream>
 #include <time.h>
