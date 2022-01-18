@@ -143,5 +143,6 @@ List baraleShirkeTest(NumericMatrix rX1, NumericMatrix rX2,int B){
 		return List::create(
 						Named("Statistic") = B0,
 						Named("NIter") = B,
-						Named("PValue") = p);
+						Named("PValue") = p,
+						Named("Samples") = Bsamples);
 }
