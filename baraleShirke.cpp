@@ -73,12 +73,9 @@ double Bstat(mat X1,mat X2,mat Z,int n1,int n2){
 
 		// Statistic
 		uvec RF1_ord = sort(RF1.tail(n2));
-		// RF1_ord.print("RF1_ord");
 		uvec RF2_ord = sort(RF2.head(n1));
-		// RF2_ord.print("RF2_ord");
 		double BF1 = BFi(RF1_ord,n1,n2);
 		double BF2 = BFi(RF2_ord,n2,n1);
-		// cout << BF1 << " " << BF2 << endl;
 		
 		return max(BF1,BF2);
 }
@@ -146,6 +143,6 @@ List baraleShirkeTest(NumericMatrix rX1, NumericMatrix rX2,int B){
 		return List::create(
 						Named("Statistic") = B0,
 						Named("NIter") = B,
-						Named("PValue") = p,
-						Named("Samples") = Bsamples);
+						Named("PValue") = p);
+						// Named("Samples") = Bsamples);
 }
