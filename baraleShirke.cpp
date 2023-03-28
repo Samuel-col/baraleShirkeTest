@@ -3,35 +3,31 @@
 
 // [[Rcpp::plugins("cpp11")]]
 #include <iostream>
+#include <tuple>
 #include <time.h>
 #include <math.h>
 #include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
 
-using namespace Rcpp;
-using namespace arma;
-using namespace std;
 
-// Mahalanobis Distance
-double MahDist2(vec Obs,vec xBar,mat Sinv){
-		vec dif = Obs - xBar;
-		return as_scalar(dif.t() * Sinv * dif);
+// Objects Conversion
+Rcpp::NumericMatrix arma_to_R(arma::mat m){
+  
+  Rcpp::NumericMatrix r_m(m.n_rows,m.n_cols);
+  std::copy(m.begin(),m.end(),r_m.begin());
+  
+  return(r_m);
 }
-
-// Mahalanobis Depth
-double mahDepth(vec Obs,vec xBar, mat Sinv){
-		double mahDist2 = MahDist2(Obs,xBar,Sinv);
-		return 1/(1+mahDist2);
+ 
+Rcpp::NumericVector arma_to_R(arma::vec v){
+  
+  Rcpp::NumericVector r_v(v.size());
+  std::copy(v.begin(),v.end(),r_v.begin());
+  
+  return(r_v);
 }
-
-vec MahDepth(mat Obs,vec xBar,mat Sinv){
-		int n = Obs.n_rows;
-		vec depths(n,fill::none);
-		for(int i=0;i<n;i++)
-				depths(i) = mahDepth(Obs.row(i).as_col(),xBar,Sinv);
-		return depths;
-}
-
+ 
+ 
 // Expected Value
 double expectedValueRFi_j(int ni,int nk, int j){
 		return (((double)(ni+nk+1))/(nk+1))*j;
@@ -45,7 +41,7 @@ double varianceRFi_j(int ni,int nk, int j){
 }
 
 // B^{\hat{F}_i}
-double BFi(uvec RFi,int ni,int nk){
+double BFi(arma::uvec RFi,int ni,int nk){
 		double s = 0;
 		for(int j = 0; j<nk; j++){
 				s += pow(RFi(j) - expectedValueRFi_j(ni,nk,j+1),2)/varianceRFi_j(ni,nk,j+1);
@@ -53,96 +49,202 @@ double BFi(uvec RFi,int ni,int nk){
 		return s/nk;
 }
 
+// Calculate depths
+std::tuple<arma::vec,arma::vec> computeDepths(arma::mat X1,
+                                              arma::mat X2,
+                                              arma::mat Z,
+                                              std::string depth,
+                                              int N,int n1,
+                                              int n2){
+  
+    // Extract funtion from ddalpha R package
+    std::string rdepth = "depth." + depth;
+    Rcpp::Environment Rddalpha = Rcpp::Environment::namespace_env("ddalpha");
+    Rcpp::Function Rdepth = Rddalpha[rdepth];
+    
+    // Depths
+    arma::vec d1(N,arma::fill::zeros);
+    arma::vec d2(N,arma::fill::zeros);
+    Rcpp::NumericMatrix rX1 = arma_to_R(X1);
+    Rcpp::NumericMatrix rX2 = arma_to_R(X2);
+    
+    d1.head(n1) = Rcpp::as<arma::vec>(Rdepth(
+      Named("x",rX1),
+      Named("data",rX1)
+    ));
+  
+    d1.tail(n2) = Rcpp::as<arma::vec>(Rdepth(
+      Named("x",rX2),
+      Named("data",rX1)
+    ));
+  
+    d2.head(n1) = Rcpp::as<arma::vec>(Rdepth(
+      Named("x",rX1),
+      Named("data",rX2)
+    ));
+  
+    d2.tail(n2) = Rcpp::as<arma::vec>(Rdepth(
+      Named("x",rX2),
+      Named("data",rX2)
+    ));
+  
+		return std::make_tuple(d1,d2);
+}
+
 // Test Statistic
-double Bstat(mat X1,mat X2,mat Z,int n1,int n2){
+double Bstat(arma::mat X1,arma::mat X2,arma::mat Z,
+             std::string depth,
+             int N,int n1,int n2){
+  
+    arma::vec d1, d2;
+    std::tie(d1,d2) = computeDepths(X1,X2,Z,depth,N,n1,n2);
 
-		// Shape/Scale parameters
-		vec m1 = mean(X1).as_col();
-		vec m2 = mean(X2).as_col();
-
-		mat S1 = cov(X1);
-		mat S2 = cov(X2);
-
-		// Depths
-		vec d1 = MahDepth(Z,m1,S1.i());
-		vec d2 = MahDepth(Z,m2,S2.i());
-		
 		// Ranks
-		uvec RF1 = 1 + sort_index(sort_index(d1));
-		uvec RF2 = 1 + sort_index(sort_index(d2));
+		arma::uvec RF1 = 1 + arma::sort_index(arma::sort_index(d1));
+		arma::uvec RF2 = 1 + arma::sort_index(arma::sort_index(d2));
 
 		// Statistic
-		uvec RF1_ord = sort(RF1.tail(n2));
-		uvec RF2_ord = sort(RF2.head(n1));
+		arma::uvec RF1_ord = arma::sort(RF1.tail(n2));
+		arma::uvec RF2_ord = arma::sort(RF2.head(n1));
 		double BF1 = BFi(RF1_ord,n1,n2);
 		double BF2 = BFi(RF2_ord,n2,n1);
 		
-		return max(BF1,BF2);
+		return std::max(BF1,BF2);
 }
 
 // baraleShirkeTest
 // [[Rcpp::export]]
-List baraleShirkeTest(NumericMatrix rX1, NumericMatrix rX2,int B){
+Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
+                            Rcpp::NumericMatrix rX2,
+                            std::string depth,
+                            int B,float alpha,
+                            bool returnDepths,
+                            bool returnSamples){
 		
 		// Conversión a Armadillo
-		mat X1 = as<mat>(rX1);
-		mat X2 = as<mat>(rX2);
+		arma::mat X1 = Rcpp::as<arma::mat>(rX1);
+    arma::mat X2 = Rcpp::as<arma::mat>(rX2);
 		
-		if (X1.n_cols!=X2.n_cols){
-		  cout << "ERROR: Samples dimensions are not the equal." << endl;
-      return List::create();
-		}
-
-		mat Z = join_vert(X1,X2);
+		arma::mat Z = arma::join_vert(X1,X2);
 		int n1 = X1.n_rows;
 		int n2 = X2.n_rows;
 		int N = n1 + n2;
+		int n_dim = X1.n_cols;
 		
 		// ObservedStatistic
-		double B0 = Bstat(X1,X2,Z,n1,n2);
+		double B0 = Bstat(X1,X2,Z,depth,N,n1,n2);
 
-		// Bootstrap
-		vec Bsamples(B,fill::none);
-		clock_t t = clock(); // Progress report
-		for(int i=0;i<B;i++){
-				uvec perm = randperm(N);
-				mat bX1 = Z.rows(perm.head(n1));
-				mat bX2 = Z.rows(perm.tail(n2));
-				mat Zb = Z.rows(perm);
-				Bsamples(i) = Bstat(bX1,bX2,Zb,n1,n2);
-				
-				if(clock()-t > 1*CLOCKS_PER_SEC){ // Progress report
-				  t = clock();
-				  cout << setprecision(3) << (float)i/B*100 << "% completed." << endl;
-				}
+		// Remuestreo
+		double p;
+		Rcpp::RObject out_Bsamples;
+		if(returnSamples){
+		  
+		    arma::vec Bsamples(B, arma::fill::none);
+		    clock_t t = clock(); // Progress report
+		    for(int i=0;i<B;i++){
+		        arma::uvec perm = arma::randperm(N);
+		        arma::mat bX1 = Z.rows(perm.head(n1));
+		        arma::mat bX2 = Z.rows(perm.tail(n2));
+		        arma::mat Zb = Z.rows(perm);
+		    		Bsamples(i) = Bstat(bX1,bX2,Zb,depth,N,n1,n2);
+		    		
+		    		if(clock()-t > 1*CLOCKS_PER_SEC){ // Progress report
+		    		  t = clock();
+		    		  std::cout << std::setprecision(3) << (float)i/B*100 << "% completed." << std::endl;
+		    		}
+		    }
+		    
+		    // Compute p-value and return samples
+		    arma::uvec comp = (B0 <= Bsamples);
+		    p = ((double)sum(comp))/B;
+		    
+		    out_Bsamples = arma_to_R(Bsamples);
+		    
+		}else{
+		  
+		  int upper_Bsamples = 0;
+		    clock_t t = clock(); // Progress report
+		    for(int i=0;i<B;i++){
+		        arma::uvec perm = arma::randperm(N);
+		        arma::mat bX1 = Z.rows(perm.head(n1));
+		        arma::mat bX2 = Z.rows(perm.tail(n2));
+		        arma::mat Zb = Z.rows(perm);
+		        if(Bstat(bX1,bX2,Zb,depth,N,n1,n2) > B0) upper_Bsamples++;
+		    		
+		    		if(clock()-t > 1*CLOCKS_PER_SEC){ // Progress report
+		    		  t = clock();
+		    		  std::cout << std::setprecision(3) << (float)i/B*100 << "% completed." << std::endl;
+		    		}
+		    }
+		    
+		    // Compute p-value and return samples
+		    out_Bsamples = R_NilValue;
+		    p = (double)upper_Bsamples/B;
 		}
 
-		// pValue
-		uvec comp = B0 <= Bsamples;
-		double p = ((double)sum(comp))/B;
-		
-		string concl;
-		if (p<0.05){
+		// Conclude
+		std::string concl;
+		if (p<alpha){
 				concl = "Reject";
 		}else{
 				concl = "Do not reject";
 		}
+		
+		// Return depths
+		Rcpp::RObject out_depths;
+		if(returnDepths){
+		  
+        arma::vec d1, d2;
+        std::tie(d1,d2) = computeDepths(X1,X2,Z,depth,N,n1,n2);
+        
+        arma::mat depths = arma::join_horiz(arma::mat(d1),
+                                            arma::mat(d2));
+		    out_depths = arma_to_R(depths);
+		    
+		}else{
+		    out_depths = R_NilValue;
+		}
 
 		// Display Results
-		cout << "Barale & Shirke Test:" << endl;
-		cout << "Two multivariate samples rank test for scale/location equality" << endl;
-		cout << "H_0: mu_1=mu_2 and Sigma_1=Sigma_2" << endl;
-		cout << string(75,'-') << endl;
-		cout << "Test statistic: " << B0 << endl;
-		cout << "Aproximated p-value: "  << p << endl;
-		cout << string(75,'-') << endl;
-		cout << "Decision: " << concl << " the null hypothesis at 0.05 significance level." << endl;
-		cout << "They were used " << B << " iterations to aproximate the statistic's distribution." << endl << endl << endl;
+		std::string results;
+		results += "Barale & Shirke Test:\n";
+		results += "Two multivariate samples rank test for\n scale/location equality\n";
+		results += "H_0: mu_1 = mu_2 and Sigma_1 = Sigma_2\n";
+		results += std::string(37,'-');
+		results += '\n';
+		results += "Test statistic: ";
+		results += std::to_string(B0);
+		results += '\n';
+		results += "Aproximated p-value: ";
+		results += std::to_string(p);
+		results += '\n';
+		results += std::string(37,'-');
+		results += '\n';
+		results += "Depth Measure: ";
+		results += depth;
+		results += '\n';
+		results += "Decision: ";
+		results += concl;
+		results += " the null hypothesis at\n ";
+		results += std::to_string(alpha);
+		results += " significance level.\n";
+		results += "There were used ";
+		results += std::to_string(B);
+		results += " iterations to\n aproximate the statistic's distribution.";
+		
+		
 
 		// Return
-		return List::create(
-						Named("Statistic") = B0,
-						Named("NIter") = B,
-						Named("PValue") = p);
-						// Named("Samples") = Bsamples);
+		return Rcpp::List::create(
+						Rcpp::Named("Statistic") = B0,
+						Rcpp::Named("NIter")     = B,
+						Rcpp::Named("PValue")    = p,
+						Rcpp::Named("n1")        = n1,
+						Rcpp::Named("n2")        = n2,
+						Rcpp::Named("alpha")     = alpha,
+						Rcpp::Named("Depth")     = depth,
+						Rcpp::Named("DepthVals") = out_depths,
+						Rcpp::Named("Samples")   = out_Bsamples,
+            Rcpp::Named("Message")   = results
+		      );
 }
