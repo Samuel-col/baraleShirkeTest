@@ -11,18 +11,13 @@ The test is implemented in **C++** in order to aproximate the p-value with a hig
 
 ## How to use it
 
-Assuming that you have installed all the dependencies previously mentioned, you should load the following libraries in **R**:
+Assuming that you have installed all the dependencies previously mentioned, you should load the function:
 
 ```R
 source("path/to/baraleShirke.R")
 ```
-Now, assuming that the ```baraleShirke.cpp``` file is in your working directory, you must compile the file as follows:
 
-```R
-sourceCpp("baraleShirke.cpp")
-```
-
-Finally you're ready to start performing the test. You must know that the ```baraleshirke.test``` function has seven arguments that must be passed in the following order:
+Now you're ready to start performing the test. You must know that the ```baraleshirke.test``` function has seven arguments that must be passed in the following order:
 
 * ```X1``` which is the **matrix**, **data.frame** or **array** that contains the observations of the first sample on its rows.
 
