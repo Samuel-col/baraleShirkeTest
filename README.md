@@ -3,19 +3,18 @@
 
 ## About the code
 
-The test is performed by the function called ```baraleShirkeTest```. This function is defined in ```baraleShirke.cpp```. That files contains several functions that are used in the ```baraleShirkeTest``` function. One of them is ```mahDepth``` which computes the mahalanobis depth of a vector according to a mean vector and a covariances matrix. You can replace this function if you want to use a different depth meassure.
+The test is performed by the function called ```baraleShirkeTest```. This function is defined in ```baraleShirke.cpp```. That files contains several functions that are used in the ```baraleShirkeTest``` function. ```baraleShirke.R``` contains the function ```baraleShirke.test``` which is the function that the user shoud call.
 
 ## Dependencies
 
-The test is implemented in **C++** in order to aproximate the p-value with a higher precision at a lower cost. Therefore, it is necesary to install a **C++** compiler, ```Rcpp``` and ```RcppArmadillo``` **R** packages, and ```Armadillo``` **C++** library.
+The test is implemented in **C++** in order to aproximate the p-value with a higher precision at a lower cost. Therefore, it is necesary to install a **C++** compiler, ```ddalpha```, ```Rcpp``` and ```RcppArmadillo``` **R** packages, and ```Armadillo``` **C++** library.
 
 ## How to use it
 
 Assuming that you have installed all the dependencies previously mentioned, you should load the following libraries in **R**:
 
 ```R
-library(Rcpp)
-library(RcppArmadillo)
+source("path/to/baraleShirke.R")
 ```
 Now, assuming that the ```baraleShirke.cpp``` file is in your working directory, you must compile the file as follows:
 
@@ -23,20 +22,41 @@ Now, assuming that the ```baraleShirke.cpp``` file is in your working directory,
 sourceCpp("baraleShirke.cpp")
 ```
 
-Finally you're ready to start performing the test. You must know that the ```baraleShirkeTest``` function has three arguments that must be passed in the following order:
+Finally you're ready to start performing the test. You must know that the ```baraleshirke.test``` function has seven arguments that must be passed in the following order:
 
-* ```X1``` which is the **matrix** that contains the observations of the first sample on its rows.
+* ```X1``` which is the **matrix**, **data.frame** or **array** that contains the observations of the first sample on its rows.
 
-* ```X2``` which is the **matrix** that contains the observations of the second sample on its rows.
+* ```X2``` which is the **matrix**, **data.frame** or **array** that contains the observations of the second sample on its rows.
 
-* ```B```, the number of iterations that will be used to approximate the p-value.
+* ```depth``` which is a string that specifies the depth measure that is going to be used. It should be one of the following:
+
+  - halfspace
+  - L2
+  - projection
+  - potential
+  - qhpeeling
+  - simplicial
+  - spatial
+  - zonoid
+
+* ```NIter``` which is the number of iterations that will be used to approximate the p-value.
+
+* ```alpha``` which is significance level of the test.
+
+* ```returnDepths``` which is a boolean that indicates if the depths should be returned.
+
+* ```returnSamples``` which is a boolean that indicates if the resampling samples should be returned.
+
+Arguments 3 to 7 are optional.
+
 
 ## Files
 
 Here you can find a list of the files that are contained on this repository:
 
-* ```baraleShirke.cpp```: Source code un **C++**.
-* ```baraleShirke.r```: Example code in **R**.
+* ```baraleShirke.cpp```: Source code in **C++**.
+* ```baraleShirke.R```: ```baraleshirke.test```function definition.
+* ```test.R```: Example code in **R**.
 * ```turtles.csv```: Example data (columns are separated by spaces).
 * ```README.md```: This file.
 
