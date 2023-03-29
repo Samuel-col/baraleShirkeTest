@@ -54,7 +54,7 @@ The function returns a list with the following entries:
 * ```alpha```: Significance level of the test.
 * ```Depth```: Depth measure used in the test.
 * ```DepthVals```: Computed depths (if ```returnDepths == TRUE```).
-* ```DepthVals```: Simulated statistics (if ```returnSamples == TRUE```).
+* ```Samples```: Simulated statistics (if ```returnSamples == TRUE```).
 * ```Message```: Nice message showing test output.
 
 
@@ -64,7 +64,7 @@ Here you can find a list of the files that are contained on this repository:
 
 * ```baraleShirke.cpp```: Source code in **C++**.
 * ```baraleShirke.R```: ```baraleshirke.test``` function definition.
-* ```test.R```: Example code in **R**.
+* ```test.r```: Example code in **R**.
 * ```turtles.csv```: Example data (columns are separated by spaces).
 * ```README.md```: This file.
 
