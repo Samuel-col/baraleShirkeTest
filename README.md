@@ -25,12 +25,14 @@ Now you're ready to start performing the test. You must know that the ```barales
 
 * ```depth``` which is a string that specifies the depth measure that is going to be used. It should be one of the following:
 
+  - betaSkeleton
   - halfspace
   - L2
   - projection
   - potential
   - qhpeeling
   - simplicial
+  - simplicialVolume
   - spatial
   - zonoid
 
