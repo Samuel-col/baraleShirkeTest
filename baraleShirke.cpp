@@ -234,7 +234,7 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 		results += " significance level.\n";
 		results += "There were used ";
 		results += std::to_string(B);
-		results += " iterations to\n aproximate the statistic's distribution.";
+		results += " iterations to\n aproximate the statistic's distribution.\n";
 		
 		
 
