@@ -53,7 +53,7 @@ The function returns a list with the following entries:
 * ```n2```: Number of observations in sample 2.
 * ```alpha```: Significance level of the test.
 * ```Depth```: Depth measure used in the test.
-* ```DepthVals```: Computed depths (if ```returnDepths == TRUE```).
+* ```DepthVals```: Computed depths (if ```returnDepths == TRUE```). Here the first column contains the depths with respect to sample 1 and the second column, with respect to sample 2.
 * ```Samples```: Simulated statistics (if ```returnSamples == TRUE```).
 * ```Message```: Nice message showing test output.
 
