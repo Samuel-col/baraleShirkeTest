@@ -44,13 +44,26 @@ Now you're ready to start performing the test. You must know that the ```barales
 
 Arguments 3 to 7 are optional.
 
+The function returns a list with the following entries:
+
+* ```Statistic```: The observed Bmax statistic.
+* ```NIter```: Number of iterations used to approximate the p-value.
+* ```PValue```: Approximated p-value.
+* ```n1```: Number of observations in sample 1.
+* ```n2```: Number of observations in sample 2.
+* ```alpha```: Significance level of the test.
+* ```Depth```: Depth measure used in the test.
+* ```DepthVals```: Computed depths (if ```returnDepths == TRUE```).
+* ```DepthVals```: Simulated statistics (if ```returnSamples == TRUE```).
+* ```Message```: Nice message showing test output.
+
 
 ## Files
 
 Here you can find a list of the files that are contained on this repository:
 
 * ```baraleShirke.cpp```: Source code in **C++**.
-* ```baraleShirke.R```: ```baraleshirke.test```function definition.
+* ```baraleShirke.R```: ```baraleshirke.test``` function definition.
 * ```test.R```: Example code in **R**.
 * ```turtles.csv```: Example data (columns are separated by spaces).
 * ```README.md```: This file.
