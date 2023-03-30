@@ -28,6 +28,8 @@ Now you're ready to start performing the test. You must know that the ```barales
   - betaSkeleton
   - halfspace
   - L2
+  - Mahalanobis
+  - MahalanobisMCD
   - projection
   - potential
   - qhpeeling
