@@ -31,9 +31,9 @@ baraleshirke.test <- function(X1,X2,
   
   ## depth
   if(!is.character(depth)) 
-    stop("depth must be one of the following characters: 'betaSkeleton', 'halfspace', 'L2', 'Mahalanobis', 'projection', 'potential', 'qhpeeling', 'simplicial', 'simplicialVolume', 'spatial' and 'zonoid'.")
-  if(!(depth %in% c('betaSkeleton', 'halfspace', 'L2', 'Mahalanobis', 'projection', 'potential', 'qhpeeling', 'simplicial', 'simplicialVolume', 'spatial', 'zonoid'))) 
-    stop("depth must be one of the following characters: 'betaSkeleton', 'halfspace', 'L2', 'Mahalanobis', 'projection', 'potential', 'qhpeeling', 'simplicial', 'simplicialVolume', 'spatial' and 'zonoid'.")
+    stop("depth must be one of the following characters: 'betaSkeleton', 'halfspace', 'L2', 'Mahalanobis', 'MahalanobisMCD', 'projection', 'potential', 'qhpeeling', 'simplicial', 'simplicialVolume', 'spatial' and 'zonoid'.")
+  if(!(depth %in% c('betaSkeleton', 'halfspace', 'L2', 'Mahalanobis', 'MahalanobisMCD', 'projection', 'potential', 'qhpeeling', 'simplicial', 'simplicialVolume', 'spatial', 'zonoid'))) 
+    stop("depth must be one of the following characters: 'betaSkeleton', 'halfspace', 'L2', 'Mahalanobis', 'MahalanobisMCD', 'projection', 'potential', 'qhpeeling', 'simplicial', 'simplicialVolume', 'spatial' and 'zonoid'.")
   
   ## NIter
   if(!is.numeric(NIter)) stop("NIter must be numeric.")

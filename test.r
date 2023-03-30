@@ -14,6 +14,7 @@ source("baraleShirke.R")
 # * halfspace
 # * L2
 # * Mahalanobis
+# * MahalanobisMCD
 # * projection
 # * potential
 # * qhpeeling
@@ -24,11 +25,11 @@ source("baraleShirke.R")
 
 
 
-n1 <- 70;n2 <- 70;p <- 2
+n1 <- 40;n2 <- 40;p <- 2
 X1 <- matrix(rnorm(n1*p,1,0.5),nrow=n1)
 X2 <- matrix(rnorm(n2*p,0,0.32),nrow=n2)
 
-my.test <- baraleshirke.test(X1,X2,depth = "projection",
+my.test <- baraleshirke.test(X1,X2,depth = "MahalanobisMCD",
                              returnDepths = T,
                              returnSamples = T)
 

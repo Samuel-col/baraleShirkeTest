@@ -57,6 +57,13 @@ std::tuple<arma::vec,arma::vec> computeDepths(arma::mat X1,
                                               int N,int n1,
                                               int n2){
   
+    // Handle MahMCD execption
+    bool MCD = 0;
+    if(depth == "MahalanobisMCD"){
+      MCD = 1;
+      depth = "Mahalanobis";
+    }
+    
     // Extract funtion from ddalpha R package
     std::string rdepth = "depth." + depth;
     Rcpp::Environment Rddalpha = Rcpp::Environment::namespace_env("ddalpha");
@@ -68,29 +75,59 @@ std::tuple<arma::vec,arma::vec> computeDepths(arma::mat X1,
     Rcpp::NumericMatrix rX1 = arma_to_R(X1);
     Rcpp::NumericMatrix rX2 = arma_to_R(X2);
     
-    // d(X1|X1)
-    d1.head(n1) = Rcpp::as<arma::vec>(Rdepth(
-      Named("x",rX1),
-      Named("data",rX1)
-    ));
-  
-    // d(X2|X1)
-    d1.tail(n2) = Rcpp::as<arma::vec>(Rdepth(
-      Named("x",rX2),
-      Named("data",rX1)
-    ));
-  
-    // d(X1|X2)
-    d2.head(n1) = Rcpp::as<arma::vec>(Rdepth(
-      Named("x",rX1),
-      Named("data",rX2)
-    ));
-  
-    // d(X2|X2)
-    d2.tail(n2) = Rcpp::as<arma::vec>(Rdepth(
-      Named("x",rX2),
-      Named("data",rX2)
-    ));
+    if(MCD){
+        // d(X1|X1)
+        d1.head(n1) = Rcpp::as<arma::vec>(Rdepth(
+          Rcpp::Named("x",rX1),
+          Rcpp::Named("data",rX1),
+          Rcpp::Named("mah.estimate","MCD")
+        ));
+      
+        // d(X2|X1)
+        d1.tail(n2) = Rcpp::as<arma::vec>(Rdepth(
+          Rcpp::Named("x",rX2),
+          Rcpp::Named("data",rX1),
+          Rcpp::Named("mah.estimate","MCD")
+        ));
+      
+        // d(X1|X2)
+        d2.head(n1) = Rcpp::as<arma::vec>(Rdepth(
+          Rcpp::Named("x",rX1),
+          Rcpp::Named("data",rX2),
+          Rcpp::Named("mah.estimate","MCD")
+        ));
+      
+        // d(X2|X2)
+        d2.tail(n2) = Rcpp::as<arma::vec>(Rdepth(
+          Rcpp::Named("x",rX2),
+          Rcpp::Named("data",rX2),
+          Rcpp::Named("mah.estimate","MCD")
+        ));
+    }else{
+        // d(X1|X1)
+        d1.head(n1) = Rcpp::as<arma::vec>(Rdepth(
+          Rcpp::Named("x",rX1),
+          Rcpp::Named("data",rX1)
+        ));
+      
+        // d(X2|X1)
+        d1.tail(n2) = Rcpp::as<arma::vec>(Rdepth(
+          Rcpp::Named("x",rX2),
+          Rcpp::Named("data",rX1)
+        ));
+      
+        // d(X1|X2)
+        d2.head(n1) = Rcpp::as<arma::vec>(Rdepth(
+          Rcpp::Named("x",rX1),
+          Rcpp::Named("data",rX2)
+        ));
+      
+        // d(X2|X2)
+        d2.tail(n2) = Rcpp::as<arma::vec>(Rdepth(
+          Rcpp::Named("x",rX2),
+          Rcpp::Named("data",rX2)
+        ));
+    }
   
 		return std::make_tuple(d1,d2);
 }
