@@ -185,7 +185,6 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 		if(returnSamples){
 		  
 		    arma::vec Bsamples(B, arma::fill::none);
-		    //clock_t t = clock(); // Progress report
 		    for(int i=0;i<B;i++){
 		        arma::uvec perm = arma::randperm(N);
 		        arma::mat bX1 = Z.rows(perm.head(n1));
@@ -193,11 +192,7 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 		        arma::mat Zb = Z.rows(perm);
 		    		Bsamples(i) = Bstat(bX1,bX2,Zb,depth,N,n1,n2);
 		    		
-		    		if(i%progress_jumps == 0) std::cout << "=" << std::flush;
-		    		// if(clock()-t > 1*CLOCKS_PER_SEC){ // Progress report
-		    		//   t = clock();
-		    		//   std::cout << std::setprecision(3) << (float)i/B*100 << "% completed." << std::endl;
-		    		// }
+		    		if(i%progress_jumps == 1) std::cout << "=" << std::flush;
 		    }
 		    
 		    // Compute p-value and return samples
@@ -209,7 +204,6 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 		}else{
 		  
 		  int upper_Bsamples = 0;
-		    //clock_t t = clock(); // Progress report
 		    for(int i=0;i<B;i++){
 		        arma::uvec perm = arma::randperm(N);
 		        arma::mat bX1 = Z.rows(perm.head(n1));
@@ -218,10 +212,6 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 		        if(Bstat(bX1,bX2,Zb,depth,N,n1,n2) >= B0) upper_Bsamples++;
 		    		
 		    		if(i%progress_jumps == 0) std::cout << "=" << std::flush;
-		    		// if(clock()-t > 1*CLOCKS_PER_SEC){ // Progress report
-		    		//   t = clock();
-		    		//   std::cout << std::setprecision(3) << (float)i/B*100 << "% completed." << std::endl;
-		    		// }
 		    }
 		    
 		    // Compute p-value and return samples
