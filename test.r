@@ -92,8 +92,8 @@ tur <- read.csv("turtles.csv",sep=" ")
 View(tur)
 
 
-F_tur <- tur[,1:3]
-M_tur <- tur[,4:6]
+F_tur <- tur[,1:3] # Female
+M_tur <- tur[,4:6] # Male
 
 baraleshirke.test(F_tur,M_tur,NIter = 1e4,depth = "zonoid")
 baraleshirke.test(M_tur,F_tur,NIter = 1e2,depth = "zonoid")
@@ -126,3 +126,12 @@ abline(h = 0)
 plot(density(my.test$Samples),
      xlim = range(c(my.test$Samples,my.test$Statistic)))
 abline(v = my.test$Statistic, h = 0)
+
+
+#################################
+
+# Mejores: 
+# 4) potential
+# 3) simplicial
+# 2) simplicialVolume
+# 1) zonoid
