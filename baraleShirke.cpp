@@ -160,7 +160,8 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
                             std::string depth,
                             int B,float alpha,
                             bool returnDepths,
-                            bool returnSamples){
+                            bool returnSamples,
+                            int bar_size){
 		
 		// Conversión a Armadillo
 		arma::mat X1 = Rcpp::as<arma::mat>(rX1);
@@ -177,11 +178,14 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 
 		// Remuestreo
 		double p;
+		bar_size -= 3;
+		int progress_jumps = B/bar_size;
 		Rcpp::RObject out_Bsamples;
+		std::cout << "[";
 		if(returnSamples){
 		  
 		    arma::vec Bsamples(B, arma::fill::none);
-		    clock_t t = clock(); // Progress report
+		    //clock_t t = clock(); // Progress report
 		    for(int i=0;i<B;i++){
 		        arma::uvec perm = arma::randperm(N);
 		        arma::mat bX1 = Z.rows(perm.head(n1));
@@ -189,10 +193,11 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 		        arma::mat Zb = Z.rows(perm);
 		    		Bsamples(i) = Bstat(bX1,bX2,Zb,depth,N,n1,n2);
 		    		
-		    		if(clock()-t > 1*CLOCKS_PER_SEC){ // Progress report
-		    		  t = clock();
-		    		  std::cout << std::setprecision(3) << (float)i/B*100 << "% completed." << std::endl;
-		    		}
+		    		if(i%progress_jumps == 0) std::cout << "=" << std::flush;
+		    		// if(clock()-t > 1*CLOCKS_PER_SEC){ // Progress report
+		    		//   t = clock();
+		    		//   std::cout << std::setprecision(3) << (float)i/B*100 << "% completed." << std::endl;
+		    		// }
 		    }
 		    
 		    // Compute p-value and return samples
@@ -204,24 +209,27 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 		}else{
 		  
 		  int upper_Bsamples = 0;
-		    clock_t t = clock(); // Progress report
+		    //clock_t t = clock(); // Progress report
 		    for(int i=0;i<B;i++){
 		        arma::uvec perm = arma::randperm(N);
 		        arma::mat bX1 = Z.rows(perm.head(n1));
 		        arma::mat bX2 = Z.rows(perm.tail(n2));
 		        arma::mat Zb = Z.rows(perm);
-		        if(Bstat(bX1,bX2,Zb,depth,N,n1,n2) > B0) upper_Bsamples++;
+		        if(Bstat(bX1,bX2,Zb,depth,N,n1,n2) >= B0) upper_Bsamples++;
 		    		
-		    		if(clock()-t > 1*CLOCKS_PER_SEC){ // Progress report
-		    		  t = clock();
-		    		  std::cout << std::setprecision(3) << (float)i/B*100 << "% completed." << std::endl;
-		    		}
+		    		if(i%progress_jumps == 0) std::cout << "=" << std::flush;
+		    		// if(clock()-t > 1*CLOCKS_PER_SEC){ // Progress report
+		    		//   t = clock();
+		    		//   std::cout << std::setprecision(3) << (float)i/B*100 << "% completed." << std::endl;
+		    		// }
 		    }
 		    
 		    // Compute p-value and return samples
 		    out_Bsamples = R_NilValue;
-		    p = (double)upper_Bsamples/B;
+		    p = ((double)upper_Bsamples)/((double)B);
 		}
+		
+		std::cout << "]" << std::endl;
 
 		// Conclude
 		std::string concl;

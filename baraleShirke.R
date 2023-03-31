@@ -54,7 +54,8 @@ baraleshirke.test <- function(X1,X2,
   test.results <- baraleShirkeTest(X1,X2,depth,
                                    NIter,alpha,
                                    returnDepths,
-                                   returnSamples)
+                                   returnSamples,
+                                   options("width")$width)
   
   class(test.results) <- "bstest"
   
