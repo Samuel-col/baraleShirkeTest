@@ -55,7 +55,7 @@ baraleshirke.test <- function(X1,X2,
                                    NIter,alpha,
                                    returnDepths,
                                    returnSamples,
-                                   options("width")$width)
+                                   options("width")$width-5)
   
   class(test.results) <- "bstest"
   

@@ -10,6 +10,31 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
 
+// Progress bar
+class progress_report{
+  private:
+    int B;
+    int bar_size;
+    int progress_jumps;
+  public:
+    progress_report(int in_B, int in_bar_size){
+      B = in_B;
+      bar_size = in_bar_size;
+      progress_jumps = B/bar_size;
+    }
+    void display(int i){
+      if(i%progress_jumps == 0){
+		    std::cout << "[" << std::string(((i+1)*bar_size)/B,'=') << 
+		      std::string( ((B - i - 1)*bar_size)/B,' ') << "] " << 
+		        ((i+1)*100)/B << "% \r";
+		    std::cout.flush();
+      }
+    }
+    void close(){
+  		std::cout << std::endl;
+    }
+};
+
 // Objects Conversion
 Rcpp::NumericMatrix arma_to_R(arma::mat m){
   
@@ -178,10 +203,10 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 
 		// Remuestreo
 		double p;
-		bar_size -= 3;
-		int progress_jumps = B/bar_size;
+		bar_size -= 2;
+		progress_report pb(B,bar_size);
 		Rcpp::RObject out_Bsamples;
-		std::cout << "[";
+		
 		if(returnSamples){
 		  
 		    arma::vec Bsamples(B, arma::fill::none);
@@ -192,7 +217,7 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 		        arma::mat Zb = Z.rows(perm);
 		    		Bsamples(i) = Bstat(bX1,bX2,Zb,depth,N,n1,n2);
 		    		
-		    		if(i%progress_jumps == 1) std::cout << "=" << std::flush;
+		    		pb.display(i);
 		    }
 		    
 		    // Compute p-value and return samples
@@ -211,7 +236,7 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 		        arma::mat Zb = Z.rows(perm);
 		        if(Bstat(bX1,bX2,Zb,depth,N,n1,n2) >= B0) upper_Bsamples++;
 		    		
-		    		if(i%progress_jumps == 0) std::cout << "=" << std::flush;
+		    		pb.display(i);
 		    }
 		    
 		    // Compute p-value and return samples
@@ -219,7 +244,8 @@ Rcpp::List baraleShirkeTest(Rcpp::NumericMatrix rX1,
 		    p = ((double)upper_Bsamples)/((double)B);
 		}
 		
-		std::cout << "]" << std::endl;
+		pb.close();
+		
 
 		// Conclude
 		std::string concl;

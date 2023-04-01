@@ -95,8 +95,8 @@ View(tur)
 F_tur <- tur[,1:3] # Female
 M_tur <- tur[,4:6] # Male
 
-baraleshirke.test(F_tur,M_tur,NIter = 1e4,depth = "zonoid")
-baraleshirke.test(M_tur,F_tur,NIter = 1e2,depth = "zonoid")
+baraleshirke.test(F_tur,M_tur,NIter = 1e3,depth = "zonoid")
+baraleshirke.test(M_tur,F_tur,NIter = 1e2,depth = "spatial")
 
 
 
@@ -106,13 +106,14 @@ Sys.time()-t
 
 
 my.test <- baraleshirke.test(F_tur,M_tur,
-                             depth = "halfspace",
+                             depth = "Mahalanobis",
                              NIter = 3e4,
                              returnDepths = T,
                              returnSamples = T)
 
 my.test
 
+n1 <- n2 <- 24
 
 plot(my.test$DepthVals,col = rep(1:2,c(n1,n2)),
      pch = c(20,17))
